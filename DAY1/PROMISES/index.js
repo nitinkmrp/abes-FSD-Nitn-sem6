@@ -5,7 +5,7 @@ const myPromise = new Promise((resolve, reject) => {
     } else {
         reject("You have failed the exam.");
     }   
-});
+})
 myPromise.then((message) => 
         console.log("Success: " + message)).catch((message) => 
-        console.log("Error: " + message))  ;
+        console.log("Error: " + message))  
