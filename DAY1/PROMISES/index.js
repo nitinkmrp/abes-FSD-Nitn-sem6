@@ -19,10 +19,26 @@
 //     }   }   
 // f1()
 
-const getData = async () => {   
-    const response = await fetch('https://fakestoreapi.com/products');
+// const getData = async () => {   
+//     try {
+//     const response = await fetch('https://fakestoreapi.com/products');
             
-    const res = await response.json();
-    console.log(res);
-}
-getData();
+//     const res = await response.json();
+//     console.log(res);
+//     }  catch (error) {
+//             console.log('unable to fetch data');
+        
+//     }
+// }
+// getData();
+// let a;
+// console.log(a);
+// a = 35;
+// {
+//      a = 45;
+//     console.log(a); 
+//     a+=3;
+//     console.log(a);
+// }
+// console.log(a);
+
