@@ -22,6 +22,16 @@ import fs from 'fs';
 // }   
 // readDirSync("../DAY5");
 
+// const removeDirSync=(path)=>{
+//     try {
+//         fs.rmdirSync(path);
+//         console.log("Directory removed successfully");
+//     } catch (error) {
+//         console.log("Error removing directory:", error);
+//     }
+// }   
+// removeDirSync("../DAY5");
+
 const removeDirSync=(path)=>{
     try {
         fs.rmdirSync(path);
@@ -30,6 +40,6 @@ const removeDirSync=(path)=>{
         console.log("Error removing directory:", error);
     }
 }   
-removeDirSync("../DAY5");
+removeDirSync("../DAY6");
 
 
