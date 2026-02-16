@@ -5,6 +5,7 @@ const filestat=async(path)=>{
         console.log(" stats.size:", stats.size);
         console.log(" stats.isFile:", stats.isFile());
         console.log(" stats.isDirectory:", stats.isDirectory());
+        
     } catch (error) {
         console.log("Error getting file stats:", error);
     }   
