@@ -9,7 +9,7 @@ export const readFile = async (path) => {
 }
 export const writeFile = async (path, data) => {
     try {
-        await fs.writeFile(path,data);
+        await fs.writeFile(path,JSON.stringify(data,null,2));
         console.log("data has been written successfully.");      
     } catch (error) {
        console.log("unable to write data");      
