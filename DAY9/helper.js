@@ -10,8 +10,8 @@ export const readFile = async (FILE) => {
 export const writeFile = async ( data,FILE) => {
     try {
         await fs.writeFile(FILE, JSON.stringify(data, null, 2));
-        return { message: "User Registered Successfully" };
+        return { message: "User Registered Successfully" ,status:200};
     } catch (error) {
-        console.log("unable to write file");
+        console.log("unable to write file", { status: 500 });
     }
 }
