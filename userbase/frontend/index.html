@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UserBase — Admin Panel</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ── Sidebar ───────────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">UB</div>
+      <div>
+        <div class="logo-text">UserBase</div>
+        <div class="logo-sub">admin panel</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-label">Operations</div>
+    <div class="nav-item active" data-panel="show" onclick="switchPanel('show')">
+      <span>⊞</span> All Users
+      <span class="nav-badge" id="count-badge">—</span>
+    </div>
+    <div class="nav-item" data-panel="create" onclick="switchPanel('create')">
+      <span>＋</span> Create User
+    </div>
+    <div class="nav-item" data-panel="update" onclick="switchPanel('update')">
+      <span>↻</span> Update User
+    </div>
+    <div class="nav-item" data-panel="delete" onclick="switchPanel('delete')">
+      <span>⊗</span> Delete User
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="api-status">
+      <div class="status-dot"></div>
+      <span>API connected</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ── Toast container ───────────────────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ── Delete confirm modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <div class="modal-title">Confirm deletion</div>
+    <div class="modal-body" id="modal-body-text">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="modal-confirm-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main ──────────────────────────────────────────────────────── -->
+<main class="main">
+  <header class="topbar">
+    <div class="page-title">User <span>Management</span></div>
+    <div class="topbar-right">
+      <div class="base-url-pill">
+        🔗 <input id="base-url" type="text" value="http://localhost:8800" placeholder="http://localhost:8800" />
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ── ALL USERS ─────────────────────────────────────────────── -->
+    <div id="panel-show" class="panel active">
+      <div class="section-header">
+        <div>
+          <div class="section-title">All Users</div>
+          <div class="section-sub">fetch one or browse all registered users</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <span class="endpoint-tag method-get">GET /api/users</span>
+          <span class="endpoint-tag method-get">GET /api/users/:email</span>
+        </div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-label">Total users</div>
+          <div class="stat-value accent" id="stat-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Last fetched</div>
+          <div class="stat-value" style="font-size:16px;font-weight:600;margin-top:8px;color:var(--text2)" id="stat-time">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Status</div>
+          <div class="stat-value success" style="font-size:18px;margin-top:6px" id="stat-status">idle</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="search-row">
+          <input class="form-control" id="show-email" placeholder="Filter by email — leave blank to fetch all" />
+          <button class="btn btn-success" id="fetch-btn" onclick="fetchUsers()">
+            <div class="spinner"></div>
+            <span class="btn-label">Fetch users</span>
+          </button>
+          <button class="btn btn-ghost" onclick="clearShow()">Clear</button>
+        </div>
+        <div class="response-box" id="show-response">
+          <div class="response-header">
+            <div class="response-status">Response <span class="status-pill" id="show-status-pill">—</span></div>
+            <button class="copy-btn" onclick="copyResponse('show-response-body')">copy json</button>
+          </div>
+          <div class="response-body" id="show-response-body"></div>
+        </div>
+      </div>
+
+      <div id="users-grid" class="users-grid"></div>
+    </div>
+
+    <!-- ── CREATE USER ────────────────────────────────────────────── -->
+    <div id="panel-create" class="panel">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Create User</div>
+          <div class="section-sub">register a new user record</div>
+        </div>
+        <span class="endpoint-tag method-post">POST /api/users</span>
+      </div>
+
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full name *</label>
+            <input class="form-control" id="c-name" placeholder="John Doe" />
+          </div>
+          <div class="form-group">
+            <label>Email address *</label>
+            <input class="form-control" id="c-email" type="email" placeholder="john@example.com" />
+          </div>
+          <div class="form-group">
+            <label>Password *</label>
+            <input class="form-control" id="c-pass" type="password" placeholder="min 6 characters" />
+          </div>
+          <div class="form-group">
+            <label>Gender *</label>
+            <select class="form-control" id="c-gender">
+              <option value="">Select gender</option>
+              <option value="M">M</option>
+              <option value="F">F</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="create-btn" onclick="handleCreate()">
+            <div class="spinner"></div>
+            <span class="btn-label">Create user</span>
+          </button>
+          <button class="btn btn-ghost" onclick="resetForm('c-name','c-email','c-pass','c-gender')">Reset</button>
+        </div>
+        <div class="response-box" id="create-response">
+          <div class="response-header">
+            <div class="response-status">Response <span class="status-pill" id="create-status-pill">—</span></div>
+            <button class="copy-btn" onclick="copyResponse('create-response-body')">copy json</button>
+          </div>
+          <div class="response-body" id="create-response-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── UPDATE USER ────────────────────────────────────────────── -->
+    <div id="panel-update" class="panel">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Update User</div>
+          <div class="section-sub">modify fields for an existing user</div>
+        </div>
+        <span class="endpoint-tag method-put">PUT /api/users/:email</span>
+      </div>
+
+      <div class="card">
+        <div class="form-group full" style="margin-bottom:18px">
+          <label>Email to update *</label>
+          <input class="form-control" id="u-email" placeholder="Identify the user by email" />
+        </div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:14px;letter-spacing:0.5px">
+          FIELDS TO UPDATE — leave blank to skip
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>New name</label>
+            <input class="form-control" id="u-name" placeholder="Leave blank to skip" />
+          </div>
+          <div class="form-group">
+            <label>New password</label>
+            <input class="form-control" id="u-pass" type="password" placeholder="Leave blank to skip" />
+          </div>
+          <div class="form-group full">
+            <label>New gender</label>
+            <select class="form-control" id="u-gender">
+              <option value="">Leave unchanged</option>
+              <option value="M">M</option>
+              <option value="F">F</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-warning" id="update-btn" onclick="handleUpdate()">
+            <div class="spinner"></div>
+            <span class="btn-label">Update user</span>
+          </button>
+          <button class="btn btn-ghost" onclick="resetForm('u-email','u-name','u-pass','u-gender')">Reset</button>
+        </div>
+        <div class="response-box" id="update-response">
+          <div class="response-header">
+            <div class="response-status">Response <span class="status-pill" id="update-status-pill">—</span></div>
+            <button class="copy-btn" onclick="copyResponse('update-response-body')">copy json</button>
+          </div>
+          <div class="response-body" id="update-response-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DELETE USER ────────────────────────────────────────────── -->
+    <div id="panel-delete" class="panel">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Delete User</div>
+          <div class="section-sub">permanently remove a user from the database</div>
+        </div>
+        <span class="endpoint-tag method-delete">DELETE /api/users/:email</span>
+      </div>
+
+      <div class="card">
+        <div class="form-group" style="max-width:480px">
+          <label>Email address *</label>
+          <input class="form-control" id="d-email" placeholder="user@example.com" />
+        </div>
+        <div class="danger-notice">
+          ⚠ This action is irreversible. The user and all associated data will be permanently deleted.
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-danger" id="delete-btn" onclick="openDeleteModal()">
+            <div class="spinner"></div>
+            <span class="btn-label">Delete user</span>
+          </button>
+          <button class="btn btn-ghost" onclick="document.getElementById('d-email').value=''">Clear</button>
+        </div>
+        <div class="response-box" id="delete-response">
+          <div class="response-header">
+            <div class="response-status">Response <span class="status-pill" id="delete-status-pill">—</span></div>
+            <button class="copy-btn" onclick="copyResponse('delete-response-body')">copy json</button>
+          </div>
+          <div class="response-body" id="delete-response-body"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
